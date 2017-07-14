@@ -1603,7 +1603,7 @@ namespace diasm
 {
 	Instruction Decoder::decode(const uint8_t* data) const noexcept
 	{
-		Parse_context context(data, mode_ == Operation_mode::_16bit, mode_, mode_ == Operation_mode::_16bit);
+		Parse_context context(data, default_addressing_mode_16bit_, mode_, default_operand_size_16bit_);
 
 		//TODO::move prefix logic here to avoid jumping around
 		opcode_table_call(opcode_table1::table, context, *data);

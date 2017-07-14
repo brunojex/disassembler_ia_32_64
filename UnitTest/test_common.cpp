@@ -10,8 +10,6 @@ using namespace diasm;
 
 namespace UnitTest
 {
-	using Mode = Decoder::Operation_mode;
-
 	namespace 
 	{
 		struct Addressing_line_16bit
@@ -32,26 +30,26 @@ namespace UnitTest
 			{ 0, 3, Register::bp, Register::di , Operand_format::addr_of_reg1_reg2 },
 			{ 0, 4, Register::si, Register::invalid , Operand_format::addr_of_reg1 },
 			{ 0, 5, Register::di, Register::invalid , Operand_format::addr_of_reg1 },
-			{ 0, 6, Register::invalid, Register::invalid , Operand_format::displacement, Bit_size::_16, 0xFC33 },
+			{ 0, 6, Register::invalid, Register::invalid , Operand_format::displacement, Bit_size::_16},
 			{ 0, 7, Register::bx, Register::invalid , Operand_format::addr_of_reg1 },
 
-			{ 1, 0, Register::bx, Register::si, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_8 , 0xF5 },
-			{ 1, 1, Register::bx, Register::di, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_8 , 0xF5 },
-			{ 1, 2, Register::bp, Register::si, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_8 , 0xF5 },
-			{ 1, 3, Register::bp, Register::di, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_8 , 0xF5 },
-			{ 1, 4, Register::si, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_8 , 0xF5 },
-			{ 1, 5, Register::di, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_8 , 0xF5 },
-			{ 1, 6, Register::bp, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_8 , 0xF5 },
-			{ 1, 7, Register::bx, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_8 , 0xF5 },
+			{ 1, 0, Register::bx, Register::si, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_8},
+			{ 1, 1, Register::bx, Register::di, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_8},
+			{ 1, 2, Register::bp, Register::si, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_8},
+			{ 1, 3, Register::bp, Register::di, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_8},
+			{ 1, 4, Register::si, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_8},
+			{ 1, 5, Register::di, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_8},
+			{ 1, 6, Register::bp, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_8},
+			{ 1, 7, Register::bx, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_8},
 
-			{ 2, 0, Register::bx, Register::si, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_16 , 0xFC33 },
-			{ 2, 1, Register::bx, Register::di, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_16 , 0xFC33 },
-			{ 2, 2, Register::bp, Register::si, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_16 , 0xFC33 },
-			{ 2, 3, Register::bp, Register::di, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_16 , 0xFC33 },
-			{ 2, 4, Register::si, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_16 , 0xFC33 },
-			{ 2, 5, Register::di, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_16 , 0xFC33 },
-			{ 2, 6, Register::bp, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_16 , 0xFC33 },
-			{ 2, 7, Register::bx, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_16 , 0xFC33 },
+			{ 2, 0, Register::bx, Register::si, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_16},
+			{ 2, 1, Register::bx, Register::di, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_16},
+			{ 2, 2, Register::bp, Register::si, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_16},
+			{ 2, 3, Register::bp, Register::di, Operand_format::addr_of_reg1_reg2_disp, Bit_size::_16},
+			{ 2, 4, Register::si, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_16},
+			{ 2, 5, Register::di, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_16},
+			{ 2, 6, Register::bp, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_16},
+			{ 2, 7, Register::bx, Register::invalid, Operand_format::addr_of_reg1_disp, Bit_size::_16},
 		};
 
 		struct Addressing_line_32bit
@@ -147,16 +145,73 @@ namespace UnitTest
 			{ 4, Register::esp },{ 5, Register::ebp, true },{ 6, Register::esi },{ 7, Register::edi }
 		};
 
+		enum class Addressing_mode : uint8_t
+		{
+			_16,
+			not16,
+			any,
+		};
+
+		enum class Operand_size : uint8_t
+		{
+			_16,
+			not16,
+			any,
+		};
+
+		enum class Operation_mode : uint8_t
+		{
+			_32,
+			_64,
+			any
+		};
+
 		struct Validator
 		{
-			Validator(const std::set<Decoder::Operation_mode>& modes, const std::vector<uint8_t>& data, int count = 0)
+			Validator(Operation_mode operation_mode, Operand_size operand_size, Addressing_mode addr_mode, const std::vector<uint8_t>& data, int count = 0)
 				:len(data.size()), count(count)
 			{
-				Assert::IsTrue(!modes.empty(), std::wstring(L"No operation mode specified").append(std::to_wstring(count)).c_str());
-				Assert::IsTrue(modes.size() < 4, std::wstring(L"Too many operation modes specified").append(std::to_wstring(count)).c_str());
+				instructions.reserve(8);
 
-				for (const auto& mode : modes)
-					instructions.emplace_back(Decoder(mode).decode(data.data()), mode);
+				using Mode = Decoder::Operation_mode;
+				
+				if (operation_mode != Operation_mode::_32)
+				{
+					if (operand_size != Operand_size::_16)
+					{
+						if (addr_mode != Addressing_mode::_16)
+							add_instruction({ Mode::_64bit, false, false, 0}, data);
+						if (addr_mode != Addressing_mode::not16)
+							add_instruction({ Mode::_64bit, true, false, 1}, data);
+					}
+
+					if (operand_size != Operand_size::not16)
+					{
+						if (addr_mode != Addressing_mode::_16)
+							add_instruction({ Mode::_64bit, false, true, 2}, data);
+						if (addr_mode != Addressing_mode::not16)
+							add_instruction({ Mode::_64bit, true, true, 3}, data);
+					}
+				}
+
+				if (operation_mode != Operation_mode::_64)
+				{
+					if (operand_size != Operand_size::_16)
+					{
+						if (addr_mode != Addressing_mode::_16)
+							add_instruction({ Mode::_32bit, false, false, 4}, data);
+						if (addr_mode != Addressing_mode::not16)
+							add_instruction({ Mode::_32bit, true, false, 5}, data);
+					}
+
+					if (operand_size != Operand_size::not16)
+					{
+						if (addr_mode != Addressing_mode::_16)
+							add_instruction({ Mode::_32bit, false, true, 6}, data);
+						if (addr_mode != Addressing_mode::not16)
+							add_instruction({ Mode::_32bit, true, true, 7}, data);
+					}
+				}
 			}
 
 			~Validator()
@@ -166,11 +221,8 @@ namespace UnitTest
 					auto instruction = val.first;
 					auto local_count = count;
 
-					auto extra_info = val.second == Decoder::Operation_mode::_16bit ?
-						std::wstring(L" (16 bit mode) validator count =").append(std::to_wstring(count)) :
-						val.second == Decoder::Operation_mode::_32bit ?
-						std::wstring(L" (32 bit mode) validator count =").append(std::to_wstring(count)) :
-						std::wstring(L" (64 bit mode) validator count =").append(std::to_wstring(count));
+					const char* const base_msg_ptr = base_messages[val.second.base_message_index];
+					auto extra_info = std::wstring(base_msg_ptr, base_msg_ptr + 56).append(std::to_wstring(count));
 
 					Assert::IsTrue(!instruction.empty(), std::wstring(L"Instruction is empty").append(extra_info).c_str());
 					Assert::AreEqual(instruction.immediate, immediate, std::wstring(L"Immediate value mismatch").append(extra_info).c_str());
@@ -209,9 +261,35 @@ namespace UnitTest
 			Operand_format operand3 = Operand_format::invalid;
 			Operand_format operand4 = Operand_format::invalid;
 		private:
+			static const constexpr char* const base_messages[8] =
+			{
+				" mode=64bit, op_size_16=0, addr_16=0, validator count = ",
+				" mode=64bit, op_size_16=1, addr_16=0, validator count = ",
+				" mode=64bit, op_size_16=0, addr_16=1, validator count = ",
+				" mode=64bit, op_size_16=1, addr_16=1, validator count = ",
+				" mode=32bit, op_size_16=0, addr_16=0, validator count = ",
+				" mode=32bit, op_size_16=1, addr_16=0, validator count = ",
+				" mode=32bit, op_size_16=0, addr_16=1, validator count = ",
+				" mode=32bit, op_size_16=1, addr_16=1, validator count = "
+			};
+
+			struct Decoder_config
+			{
+				Decoder::Operation_mode operation_mode;
+				bool is_default_operand_size_16;
+				bool is_addressing_mode_16;
+				uint8_t base_message_index;
+			};
+
+			void add_instruction(Decoder_config config, const std::vector<uint8_t>& data)
+			{
+				instructions.emplace_back(
+					Decoder(config.operation_mode, config.is_default_operand_size_16, config.is_addressing_mode_16).decode(data.data()), config);
+			}
+
 			int len;
 			int count;
-			std::vector<std::pair<Instruction, Decoder::Operation_mode>> instructions;
+			std::vector<std::pair<Instruction, Decoder_config>> instructions;
 		};
 
 		enum class Bit_mode
@@ -219,8 +297,252 @@ namespace UnitTest
 			_8 = 0, _16, _32, _64
 		};
 
-		void test_extended_rXX_imm8(Bit_mode reg_type, Opcode opcode, uint8_t opcode_byte, uint8_t reg_field, int& validator_count)
+		void test_extended_mXX_immX(const Opcode opcode, const Bit_size imm_size, 
+			const Operand_size operand_size, const uint8_t opcode_byte, const uint8_t reg_field, int& validator_count)
 		{
+			//test 16bit addressing
+			for (const auto& entry : addressing_line_16bit)
+			{
+				const uint8_t mod_rm = (entry.mod << 6) | (reg_field << 3) | entry.rm;
+
+				int32_t immediate;
+				int32_t displacement;
+				std::vector<uint8_t> data;
+
+				switch (entry.displacement_size)
+				{
+				case Bit_size::_0:
+					switch (imm_size)
+					{
+					case Bit_size::_8:
+						data = { opcode_byte, mod_rm, 0xF0 };
+						immediate = static_cast<int8_t>((uint8_t)0xF0);
+
+						break;
+					case Bit_size::_16:
+						data = { opcode_byte, mod_rm, 0xF5, 0x66 };
+						immediate = static_cast<int32_t>((uint16_t)0x66F5);
+						break;
+					default:
+						data = { opcode_byte, mod_rm, 0xF5, 0x66 , 0x55, 0x69};
+						immediate = static_cast<int32_t>((uint32_t)0x695566F5);
+					}
+					displacement = 0;
+					break;
+				case Bit_size::_8:
+					switch (imm_size)
+					{
+					case Bit_size::_8:
+						data = { opcode_byte, mod_rm, 0xF8, 0xF0 };
+						immediate = static_cast<int8_t>((uint8_t)0xF0);
+						break;
+					case Bit_size::_16:
+						data = { opcode_byte, mod_rm, 0xF8, 0xF5, 0x66 };
+						immediate = static_cast<int16_t>((uint16_t)0x66F5);
+						break;
+					default:
+						data = { opcode_byte, mod_rm, 0xF8, 0xF5, 0x66 , 0x55, 0x69 };
+						immediate = static_cast<int32_t>((uint32_t)0x695566F5);
+					}
+					displacement = static_cast<int8_t>((uint8_t)0xF8);
+					break;
+				default:
+					switch (imm_size)
+					{
+					case Bit_size::_8:
+						data = { opcode_byte, mod_rm, 0xF8, 0x66, 0xF0 };
+						immediate = static_cast<int8_t>((uint8_t)0xF0);
+						break;
+					case Bit_size::_16:
+						data = { opcode_byte, mod_rm, 0xF8, 0x66, 0xF5, 0x66 };
+						immediate = static_cast<int16_t>((uint16_t)0x66F5);
+						break;
+					default:
+						data = { opcode_byte, mod_rm, 0xF8, 0x66, 0xF5, 0x66 , 0x55, 0x69 };
+						immediate = static_cast<int32_t>((uint32_t)0x695566F5);
+					}
+					displacement = static_cast<int16_t>((uint16_t)0x66F8);
+				}
+				
+				Validator val(Operation_mode::any, operand_size, Addressing_mode::_16, data, validator_count++);
+				val.opcode = opcode;
+				val.operand1 = entry.format;
+				val.operand2 = Operand_format::immediate;
+				val.register1 = entry.r1;
+				val.register2 = entry.r2;
+				val.displacement_size = entry.displacement_size;
+				val.displacement = displacement;
+				val.immediate_size = imm_size;
+				val.immediate = immediate;
+			}
+
+			//test 32bit addressing (sib table)
+			for (uint8_t mod = 0; mod < 3; mod++)
+			{
+				const uint8_t mod_rm = (mod << 6) | (reg_field << 3) | 0x04;
+
+				for (const auto& line_entry : addressing_line_SIB_32bit)
+				{
+					for (const auto& column_entry : addressing_column_SIB_32bit)
+					{
+						const uint8_t sib_byte = (line_entry.ss << 6) | (line_entry.index << 3) | column_entry.base;
+
+						std::vector<uint8_t> data;
+						int32_t displacement;
+						int32_t immediate;
+						Bit_size displacement_size;
+
+						if (!column_entry.has_displacement)
+						{
+							switch (imm_size)
+							{
+							case Bit_size::_8:
+								data = { opcode_byte, mod_rm, sib_byte, 0xF0 };
+								immediate = static_cast<int8_t>((uint8_t)0xF0);
+								break;
+							case Bit_size::_16:
+								data = { opcode_byte, mod_rm, sib_byte, 0xF5, 0x66 };
+								immediate = static_cast<int16_t>((uint16_t)0x66F5);
+								break;
+							default:
+								data = { opcode_byte, mod_rm, sib_byte, 0xF5, 0x66 , 0x55, 0x69 };
+								immediate = static_cast<int32_t>((uint32_t)0x695566F5);
+							}
+							displacement = 0;
+							displacement_size = Bit_size::_0;
+						}
+						else if(mod == 1)
+						{
+							switch (imm_size)
+							{
+							case Bit_size::_8:
+								data = { opcode_byte, mod_rm, sib_byte, 0xF3, 0xF0 };
+								immediate = static_cast<int8_t>((uint8_t)0xF0);
+								break;
+							case Bit_size::_16:
+								data = { opcode_byte, mod_rm, sib_byte, 0xF3, 0xF5, 0x66 };
+								immediate = static_cast<int16_t>((uint16_t)0x66F5);
+								break;
+							default:
+								data = { opcode_byte, mod_rm, sib_byte, 0xF3, 0xF5, 0x66 , 0x55, 0x69 };
+								immediate = static_cast<int32_t>((uint32_t)0x695566F5);
+							}
+							displacement = static_cast<int8_t>((uint8_t)0xF3);
+							displacement_size = Bit_size::_8;
+						}
+						else
+						{
+							switch(imm_size)
+							{
+							case Bit_size::_8:
+								data = { opcode_byte, mod_rm, sib_byte, 0xFD, 0x57, 0xE0, 0x59, 0xF0 };
+								immediate = static_cast<int8_t>((uint8_t)0xF0);
+								break;
+							case Bit_size::_16:
+								data = { opcode_byte, mod_rm, sib_byte, 0xFD, 0x57, 0xE0, 0x59, 0xF5, 0x66 };
+								immediate = static_cast<int16_t>((uint16_t)0x66F5);
+								break;
+							default:
+								data = { opcode_byte, mod_rm, sib_byte, 0xFD, 0x57, 0xE0, 0x59, 0xF5, 0x66 , 0x55, 0x69 };
+								immediate = static_cast<int32_t>((uint32_t)0x695566F5);
+							}
+							displacement = static_cast<int32_t>((uint32_t)0x59E057FD);
+							displacement_size = Bit_size::_32;
+						}
+
+						Validator val(Operation_mode::any, operand_size, Addressing_mode::not16, data, validator_count++);
+						val.opcode = opcode;
+						val.operand1 = line_entry.format;
+						val.operand2 = Operand_format::immediate;
+						val.register1 = line_entry.r1;
+						val.register2 = (mod || column_entry.base != 5) ? column_entry.r1 : Register::invalid;	
+						val.displacement_size = displacement_size;
+						val.displacement = displacement;
+						val.immediate_size = imm_size;
+						val.immediate = immediate;
+					}
+				}
+			}
+
+			//test 32bit addressing
+			for (const auto& entry : addressing_line_32bit)
+			{
+				const uint8_t mod_rm = (entry.mod << 6) | (reg_field << 3) | entry.rm;
+
+				std::vector<uint8_t> data;
+				int32_t displacement;
+				int32_t immediate;
+
+				switch (entry.displacement_size)
+				{
+				case Bit_size::_0:
+					switch (imm_size)
+					{
+					case Bit_size::_8:
+						data = { opcode_byte, mod_rm, 0x59};
+						immediate = static_cast<int8_t>((uint8_t)0x59);
+						break;
+					case Bit_size::_16:
+						data = { opcode_byte, mod_rm, 0xF5, 0x66 };
+						immediate = static_cast<int16_t>((uint16_t)0x66F5);
+						break;
+					default:
+						data = { opcode_byte, mod_rm, 0xF5, 0x66 , 0x55, 0x69 };
+						immediate = static_cast<int32_t>((uint32_t)0x695566F5);
+					}
+					displacement = 0;
+					break;
+				case Bit_size::_8:
+					switch (imm_size)
+					{
+					case Bit_size::_8:
+						data = { opcode_byte, mod_rm, 0xF7, 0x59 };
+						immediate = static_cast<int8_t>((uint8_t)0x59);
+						break;
+					case Bit_size::_16:
+						data = { opcode_byte, mod_rm, 0xF7, 0xF5, 0x66 };
+						immediate = static_cast<int16_t>((uint16_t)0x66F5);
+						break;
+					default:
+						data = { opcode_byte, mod_rm, 0xF7, 0xF5, 0x66 , 0x55, 0x69 };
+						immediate = static_cast<int32_t>((uint32_t)0x695566F5);
+					}
+					displacement = static_cast<int8_t>((uint8_t)0xF7);
+					break;
+				default:
+					switch (imm_size)
+					{
+					case Bit_size::_8:
+						data = { opcode_byte, mod_rm, 0xF9, 0x56, 0xE0, 0x98, 0x59 };
+						immediate = static_cast<int8_t>((uint8_t)0x59);
+						break;
+					case Bit_size::_16:
+						data = { opcode_byte, mod_rm, 0xF9, 0x56, 0xE0, 0x98, 0xF5, 0x66 };
+						immediate = static_cast<int16_t>((uint16_t)0x66F5);
+						break;
+					default:
+						data = { opcode_byte, mod_rm, 0xF9, 0x56, 0xE0, 0x98, 0xF5, 0x66 , 0x55, 0x69 };
+						immediate = static_cast<int32_t>((uint32_t)0x695566F5);
+					}
+					displacement = static_cast<int32_t>((uint32_t)0x98E056F9);
+				}
+
+				Validator val(Operation_mode::any, operand_size, Addressing_mode::not16, data, validator_count++);
+				val.opcode = opcode;
+				val.operand1 = entry.format;
+				val.operand2 = Operand_format::immediate;
+				val.register1 = entry.r1;
+				val.displacement_size = entry.displacement_size;
+				val.displacement = displacement;
+				val.immediate_size = imm_size;
+				val.immediate = immediate;
+			}
+		}
+
+		void test_extended_rXX_immX(Bit_mode reg_type, Opcode opcode, Bit_size imm_size, uint8_t opcode_byte, uint8_t reg_field, int& validator_count)
+		{
+			Assert::IsTrue(imm_size != Bit_size::_0, L"Immediate size can't be 0");
+
 			static constexpr const Register registers[4][8] =
 			{
 				{ Register::al, Register::cl, Register::dl, Register::bl, Register::ah, Register::ch, Register::dh, Register::bh },
@@ -230,31 +552,68 @@ namespace UnitTest
 			};
 
 			int reg_index = static_cast<int>(reg_type);
+			Operation_mode operation_mode;
+			Operand_size operand_size;
 
-			const std::set<Decoder::Operation_mode> modes = reg_index == 0 ? decltype(modes){ Mode::_16bit, Mode::_32bit, Mode::_64bit } :
-				                                            reg_index == 1 ? decltype(modes){ Mode::_16bit } :
-				                                            reg_index == 2 ? decltype(modes){ Mode::_32bit } : 
-				                                            decltype(modes){Mode::_64bit};
+			switch (reg_index)
+			{
+			case 0:
+				operation_mode = Operation_mode::any;
+				operand_size = Operand_size::any;
+				break;
+			case 1:
+				operation_mode = Operation_mode::any;
+				operand_size = Operand_size::_16;
+				break;
+			case 2:
+				operation_mode = Operation_mode::_32;
+				operand_size = Operand_size::not16;
+				break;
+			default:
+				operation_mode = Operation_mode::_64;
+				operand_size = Operand_size::not16;
+				break;
+			}
 
-			static const constexpr uint8_t immediate_8 = 0xF0;
 			uint8_t mod_rm = 0xC0 | (reg_field << 3);
+
+			std::vector<uint8_t> data;
+			int32_t immediate;
+
+			switch (imm_size)
+			{
+			case diasm::Bit_size::_8:
+				data = { opcode_byte, 0, 0xF0 };
+				immediate = static_cast<int8_t>((uint8_t)0xF0);
+				break;
+			case diasm::Bit_size::_16:
+				data = { opcode_byte, 0, 0xF0, 0x85 };
+				immediate = static_cast<int16_t>((uint16_t)0x85F0);
+				break;
+			case diasm::Bit_size::_32:
+				data = { opcode_byte, 0, 0xF0, 0x85, 0x54, 0x34 };
+				immediate = static_cast<int32_t>((uint32_t)0x345485F0);
+				break;
+			}
 
 			for (auto reg : registers[reg_index])
 			{
-				Validator val(modes, { opcode_byte, mod_rm++, immediate_8 }, validator_count++);
+				data[1] = mod_rm++;
+
+				Validator val(operation_mode, operand_size, Addressing_mode::any, data, validator_count++);
 				val.opcode = opcode;
 				val.operand1 = Operand_format::register_;
 				val.operand2 = Operand_format::immediate;
 				val.register1 = reg;
-				val.immediate_size = Bit_size::_8;
-				val.immediate = static_cast<int8_t>(immediate_8);
-			}	
+				val.immediate_size = imm_size;
+				val.immediate = immediate;
+			}
 		}
 	}
 
 	void test_AL_imm8(Opcode opcode, const std::vector<uint8_t>& data)
 	{
-		Validator val({ Mode::_16bit, Mode::_32bit, Mode::_64bit }, data);
+		Validator val(Operation_mode::any, Operand_size::any, Addressing_mode::any, data);
 		val.opcode = opcode;
 		val.operand1 = Operand_format::register_;
 		val.operand2 = Operand_format::immediate;
@@ -265,7 +624,7 @@ namespace UnitTest
 
 	void test_AX_imm16(Opcode opcode, const std::vector<uint8_t>& data)
 	{
-		Validator val({ Mode::_16bit }, data);
+		Validator val(Operation_mode::any, Operand_size::_16, Addressing_mode::any, data);
 		val.opcode = opcode;
 		val.operand1 = Operand_format::register_;
 		val.operand2 = Operand_format::immediate;
@@ -276,7 +635,7 @@ namespace UnitTest
 
 	void test_EAX_imm32(Opcode opcode, const std::vector<uint8_t>& data)
 	{
-		Validator val({ Mode::_32bit, Mode::_64bit }, data);
+		Validator val(Operation_mode::any, Operand_size::not16, Addressing_mode::any, data);
 		val.opcode = opcode;
 		val.operand1 = Operand_format::register_;
 		val.operand2 = Operand_format::immediate;
@@ -287,7 +646,7 @@ namespace UnitTest
 
 	void test_RAX_imm32(Opcode opcode, const std::vector<uint8_t>& data)
 	{
-		Validator val({ Mode::_64bit }, data);
+		Validator val(Operation_mode::_64, Operand_size::not16, Addressing_mode::any, data);
 		val.opcode = opcode;
 		val.operand1 = Operand_format::register_;
 		val.operand2 = Operand_format::immediate;
@@ -299,164 +658,92 @@ namespace UnitTest
 	void test_extended_rm8_imm8(Opcode opcode, uint8_t opcode_byte, uint8_t reg_field)
 	{
 		int validator_count = 0;
-		const uint8_t immediate_8 = 0xF0;
 
-		test_extended_rXX_imm8(Bit_mode::_8, opcode, opcode_byte, reg_field, validator_count);
-	
-		//test 16bit addressing
-		{
-			for (const auto& entry : addressing_line_16bit)
-			{
-				const uint8_t mod_rm = (entry.mod << 6) | (reg_field << 3) | entry.rm;
-
-				std::vector<uint8_t> data = entry.displacement_size == Bit_size::_0 ?
-					std::vector<uint8_t>{ opcode_byte, mod_rm, immediate_8 } : entry.displacement_size == Bit_size::_8 ?
-					std::vector<uint8_t>{ opcode_byte, mod_rm, (uint8_t)(entry.displacement), immediate_8 } :
-					std::vector<uint8_t>{ opcode_byte, mod_rm, ((uint8_t*)(&entry.displacement))[0], ((uint8_t*)(&entry.displacement))[1], immediate_8 };
-
-				Validator val({ Mode::_16bit }, data, validator_count++);
-
-				val.opcode = opcode;
-				val.operand1 = entry.format;
-				val.operand2 = Operand_format::immediate;
-				val.register1 = entry.r1;
-				val.register2 = entry.r2;
-				val.displacement_size = entry.displacement_size;
-				val.displacement = entry.displacement_size == Bit_size::_0 ? val.displacement
-					: entry.displacement_size == Bit_size::_8 ? static_cast<int8_t>((uint8_t)entry.displacement)
-					: *reinterpret_cast<int16_t*>((uint16_t*)(&entry.displacement));
-				val.immediate_size = Bit_size::_8;
-				val.immediate = static_cast<int8_t>(immediate_8);
-			}
-		}
-
-		//test 32bit addressing
-		{
-			for (const auto& entry : addressing_line_32bit)
-			{
-				const uint8_t mod_rm = (entry.mod << 6) | (reg_field << 3) | entry.rm;
-
-				std::vector<uint8_t> data = entry.displacement_size == Bit_size::_0 ?
-					std::vector<uint8_t>{ opcode_byte, mod_rm, immediate_8 } : entry.displacement_size == Bit_size::_8 ?
-					std::vector<uint8_t>{ opcode_byte, mod_rm, (uint8_t)(entry.displacement), immediate_8 } :
-					std::vector<uint8_t>{ opcode_byte, mod_rm, ((uint8_t*)(&entry.displacement))[0], ((uint8_t*)(&entry.displacement))[1],
-					((uint8_t*)(&entry.displacement))[2], ((uint8_t*)(&entry.displacement))[3], immediate_8 };
-
-				Validator val({ Mode::_32bit ,  Mode::_64bit }, data, validator_count++);
-
-				val.opcode = opcode;
-				val.operand1 = entry.format;
-				val.operand2 = Operand_format::immediate;
-				val.register1 = entry.r1;
-				val.displacement_size = entry.displacement_size;
-				val.displacement = entry.displacement_size == Bit_size::_0 ? val.displacement
-					: entry.displacement_size == Bit_size::_8 ? static_cast<int8_t>((uint8_t)entry.displacement)
-					: *reinterpret_cast<int32_t*>((uint32_t*)(&entry.displacement));
-				val.immediate_size = Bit_size::_8;
-				val.immediate = static_cast<int8_t>(immediate_8);
-			}
-		}
-
-		//test 32bit addressing (sib table)
-		{
-			for (uint8_t mod = 0; mod < 3; mod++)
-			{
-				const uint8_t mod_rm = (mod << 6) | (reg_field << 3) | 0x04;
-
-				for (const auto& line_entry : addressing_line_SIB_32bit)
-				{
-					for (const auto& column_entry : addressing_column_SIB_32bit)
-					{
-						const uint8_t sib_byte = (line_entry.ss << 6) | (line_entry.index << 3) | column_entry.base;
-
-						std::vector<uint8_t> data = !column_entry.has_displacement ?
-							std::vector<uint8_t>{ opcode_byte, mod_rm, sib_byte, immediate_8 } : mod == 1 ?
-							std::vector<uint8_t>{ opcode_byte, mod_rm, sib_byte, 0xF5, immediate_8 } :
-							std::vector<uint8_t>{ opcode_byte, mod_rm, sib_byte, 0xFD, 0x57, 0xE0, 0x59, immediate_8 };
-
-						Validator val({ Mode::_32bit ,  Mode::_64bit }, data, validator_count++);
-
-						val.opcode = opcode;
-						val.operand1 = line_entry.format;
-						val.operand2 = Operand_format::immediate;
-						val.register1 = line_entry.r1;
-						val.register2 = (mod || column_entry.base != 5) ? column_entry.r1 : Register::invalid;
-						if (column_entry.has_displacement)
-						{
-							if (mod == 1)
-							{
-								val.displacement_size = Bit_size::_8;
-								val.displacement = static_cast<int8_t>((uint8_t)0xF5);
-							}
-							else
-							{
-								val.displacement_size = Bit_size::_32;
-								val.displacement = static_cast<int32_t>((uint32_t)0x59E057FD);
-							}
-						}
-						val.immediate_size = Bit_size::_8;
-						val.immediate = static_cast<int8_t>(immediate_8);
-					}
-				}
-			}
-		}
+		test_extended_rXX_immX(Bit_mode::_8, opcode, Bit_size::_8, opcode_byte, reg_field, validator_count);
+		test_extended_mXX_immX(opcode, Bit_size::_8, Operand_size::any, opcode_byte, reg_field, validator_count);
 	}
 
 	void test_extended_rm16_imm8(Opcode opcode, uint8_t opcode_byte, uint8_t reg_field)
 	{
+		int validator_count = 0;
 
+		test_extended_rXX_immX(Bit_mode::_16, opcode, Bit_size::_8, opcode_byte, reg_field, validator_count);
+		test_extended_mXX_immX(opcode, Bit_size::_8, Operand_size::any, opcode_byte, reg_field, validator_count);
 	}
 
 	void test_extended_rm32_imm8(Opcode opcode, uint8_t opcode_byte, uint8_t reg_field)
 	{
+		int validator_count = 0;
+
+		test_extended_rXX_immX(Bit_mode::_32, opcode, Bit_size::_8, opcode_byte, reg_field, validator_count);
+		test_extended_mXX_immX(opcode, Bit_size::_8, Operand_size::any, opcode_byte, reg_field, validator_count);
 	}
 
 	void test_extended_rm64_imm8(Opcode opcode, uint8_t opcode_byte, uint8_t reg_field)
 	{
+		//TODO::need rex support
+		Assert::Fail(L"Not yet implemented");
 	}
 
 	void test_extended_rm16_imm16(Opcode opcode, uint8_t opcode_byte, uint8_t reg_field)
 	{
+		int validator_count = 0;
+
+		test_extended_rXX_immX(Bit_mode::_16, opcode, Bit_size::_16, opcode_byte, reg_field, validator_count);
+		test_extended_mXX_immX(opcode, Bit_size::_16, Operand_size::_16, opcode_byte, reg_field, validator_count);
 	}
 
 	void test_extended_rm32_imm32(Opcode opcode, uint8_t opcode_byte, uint8_t reg_field)
 	{
+		int validator_count = 0;
+
+		test_extended_rXX_immX(Bit_mode::_32, opcode, Bit_size::_32, opcode_byte, reg_field, validator_count);
+		test_extended_mXX_immX(opcode, Bit_size::_32, Operand_size::not16, opcode_byte, reg_field, validator_count);
 	}
 
 	void test_extended_rm64_imm32(Opcode opcode, uint8_t opcode_byte, uint8_t reg_field)
 	{
+		//TODO::need rex support
+		Assert::Fail(L"Not yet implemented");
 	}
 
 	void test_rm8_r8(Opcode opcode, uint8_t opcode_byte)
 	{
+		Assert::Fail(L"Not yet implemented");
 	}
 
 	void test_rm16_r16(Opcode opcode, uint8_t opcode_byte)
 	{
+		Assert::Fail(L"Not yet implemented");
 	}
 
 	void test_rm32_r32(Opcode opcode, uint8_t opcode_byte)
 	{
+		Assert::Fail(L"Not yet implemented");
 	}
 
 	void test_rm64_r64(Opcode opcode, uint8_t opcode_byte)
 	{
+		Assert::Fail(L"Not yet implemented");
 	}
 
 	void test_r8_rm8(Opcode opcode, uint8_t opcode_byte)
 	{
+		Assert::Fail(L"Not yet implemented");
 	}
 
 	void test_r16_rm16(Opcode opcode, uint8_t opcode_byte)
 	{
+		Assert::Fail(L"Not yet implemented");
 	}
 
 	void test_r32_rm32(Opcode opcode, uint8_t opcode_byte)
 	{
+		Assert::Fail(L"Not yet implemented");
 	}
 
 	void test_r64_rm64(Opcode opcode, uint8_t opcode_byte)
 	{
+		Assert::Fail(L"Not yet implemented");
 	}
-
 }
